@@ -16,6 +16,7 @@ import com.example.bank_open_api.common.security.LoginDeveloper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -63,6 +64,20 @@ public class AppService {
     @Transactional(readOnly = true)
     public App findMyApp(LoginDeveloper loginDeveloper, Long appId) {
         return appRepository.findByIdAndDeveloperId(appId, loginDeveloper.id())
+                .orElseThrow(() -> new BusinessException(ErrorCode.APP_NOT_FOUND));
+    }
+
+    /**
+     * 내 앱을 찾으면서 그 앱 줄을 잠근다 (SELECT ... FOR UPDATE)
+     *
+     * - 없거나 남의 앱이면 findMyApp과 똑같이 404(APP_NOT_FOUND)
+     * - 잠금은 부른 쪽의 트랜잭션이 끝날 때 풀린다. 트랜잭션 없이 잠그면 바로 풀려 의미가 없으므로
+     *   MANDATORY: 이미 진행 중인 트랜잭션 안에서만 부를 수 있게 강제한다 (없으면 예외)
+     * - 사용처: ApiKeyService.issue (같은 앱의 키 발급을 한 번에 하나씩 처리)
+     */
+    @Transactional(propagation = Propagation.MANDATORY)
+    public App lockMyApp(LoginDeveloper loginDeveloper, Long appId) {
+        return appRepository.findByIdAndDeveloperIdForUpdate(appId, loginDeveloper.id())
                 .orElseThrow(() -> new BusinessException(ErrorCode.APP_NOT_FOUND));
     }
 

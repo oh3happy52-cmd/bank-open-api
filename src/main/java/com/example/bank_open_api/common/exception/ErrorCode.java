@@ -29,6 +29,8 @@ public enum ErrorCode {
     // → 두 경우의 응답이 똑같아야 하므로 메시지에 appId 같은 상세 정보를 덧붙이지 않는다
     NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 주소를 찾을 수 없습니다"),
     APP_NOT_FOUND(HttpStatus.NOT_FOUND, "앱을 찾을 수 없습니다"),
+    // 내 앱이지만 그 앱에 없는 키 번호 (남의 앱이면 키 확인 전에 APP_NOT_FOUND가 먼저 나감)
+    API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 키를 찾을 수 없습니다"),
 
     // 405: 주소는 있지만 그 HTTP 메서드(GET/POST 등)는 지원하지 않음
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다"),
@@ -36,6 +38,8 @@ public enum ErrorCode {
     // 409: 이미 있는 데이터와 충돌
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입된 이메일입니다"),
     DUPLICATE_APP_NAME(HttpStatus.CONFLICT, "이미 같은 이름의 앱이 있습니다"),
+    // 앱당 ACTIVE 키는 키 교체용으로 최대 2개 (새 키 발급 → 서비스에 적용 → 옛 키 폐기)
+    API_KEY_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "앱당 활성 API 키는 최대 2개입니다"),
 
     // 500: 예상하지 못한 서버 오류
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "일시적인 오류가 발생했습니다");
