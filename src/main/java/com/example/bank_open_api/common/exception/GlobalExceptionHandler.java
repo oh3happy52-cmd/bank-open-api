@@ -12,9 +12,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @Slf4j
 @RestControllerAdvice
@@ -71,6 +74,34 @@ public class GlobalExceptionHandler {
         ErrorCode code = ErrorCode.INVALID_REQUEST;
         return ResponseEntity.status(code.getStatus())
                 .body(ErrorResponse.of(code, code.getMessage() + " (요청 본문 형식 오류)"));
+    }
+
+    // 주소의 값 형식이 틀림: 예) /api/v1/apps/abc (appId 자리에 숫자가 아닌 글자)
+    // 이 처리가 없으면 아래 "예상 못 한 오류"로 빠져 500이 된다
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        ErrorCode code = ErrorCode.INVALID_REQUEST;
+        return ResponseEntity.status(code.getStatus())
+                .body(ErrorResponse.of(code, code.getMessage() + " (" + e.getName() + " 형식 오류)"));
+    }
+
+    // 없는 주소: 예) /api/v1/nothing
+    // Spring은 이 경우 NoResourceFoundException을 던지는데, 처리가 없으면 아래 "예상 못 한 오류"에 잡혀 500이 된다
+    // (토큰이 없으면 문지기가 먼저 401로 막으므로, 이 404는 로그인한 사용자에게만 보인다)
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNoResource(NoResourceFoundException e) {
+        ErrorCode code = ErrorCode.NOT_FOUND;
+        return ResponseEntity.status(code.getStatus())
+                .body(ErrorResponse.of(code, code.getMessage()));
+    }
+
+    // 주소는 있지만 지원하지 않는 메서드: 예) DELETE /api/v1/developers/me (GET만 받는 주소)
+    // 마찬가지로 처리가 없으면 500이 된다
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException e) {
+        ErrorCode code = ErrorCode.METHOD_NOT_ALLOWED;
+        return ResponseEntity.status(code.getStatus())
+                .body(ErrorResponse.of(code, code.getMessage()));
     }
 
     // 그 밖의 예상 못 한 오류: 사용자에게는 자세한 내용을 숨기고, 서버 로그에만 전체 내용을 남김

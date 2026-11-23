@@ -24,6 +24,12 @@ public enum ErrorCode {
     // 403: 누구인지는 알지만 권한이 없음 (인가 실패)
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다"),
 
+    // 404: 찾는 대상이 없음
+    NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 주소를 찾을 수 없습니다"),
+
+    // 405: 주소는 있지만 그 HTTP 메서드(GET/POST 등)는 지원하지 않음
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다"),
+
     // 409: 이미 있는 데이터와 충돌
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입된 이메일입니다"),
 
