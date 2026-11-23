@@ -23,8 +23,9 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // DB UNIQUE 제약 이름 (V1__create_developers.sql). 같은 이메일이 두 번 저장되려 할 때 에러 메시지에 들어 있음
-    private static final String DEVELOPER_EMAIL_CONSTRAINT = "uk_developers_email";
+    // DB UNIQUE 제약 이름. 같은 값이 두 번 저장되려 할 때 에러 메시지에 들어 있음
+    private static final String DEVELOPER_EMAIL_CONSTRAINT = "uk_developers_email";    // V1: 같은 이메일
+    private static final String APP_NAME_CONSTRAINT = "uk_apps_developer_name";        // V2: 같은 개발자의 같은 앱 이름
 
     // 업무 규칙 위반 (이메일 중복, 로그인 실패 등)
     @ExceptionHandler(BusinessException.class)
@@ -36,8 +37,9 @@ public class GlobalExceptionHandler {
     }
 
     // DB 제약 조건 위반
-    // - 같은 이메일로 가입 요청이 "동시에" 두 개 들어와, 서비스의 중복 확인을 둘 다 통과한 뒤
-    //   늦게 저장하는 쪽이 UNIQUE 규칙에 걸린 경우 → 409 (순서대로 들어오면 DeveloperService가 먼저 막음)
+    // - 같은 값(이메일, 같은 개발자의 앱 이름)으로 요청이 "동시에" 두 개 들어와, 서비스의 중복 확인을
+    //   둘 다 통과한 뒤 늦게 저장하는 쪽이 UNIQUE 규칙에 걸린 경우 → 409
+    //   (순서대로 들어오면 DeveloperService·AppService가 먼저 막음)
     // - 그 밖의 제약 위반은 우리 코드의 버그일 가능성이 높으므로 → 500 + 에러 로그
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException e) {
@@ -45,6 +47,12 @@ public class GlobalExceptionHandler {
         if (cause != null && cause.contains(DEVELOPER_EMAIL_CONSTRAINT)) {
             ErrorCode code = ErrorCode.DUPLICATE_EMAIL;
             log.info("동시 가입 요청 중 이메일 중복 차단");
+            return ResponseEntity.status(code.getStatus())
+                    .body(ErrorResponse.of(code, code.getMessage()));
+        }
+        if (cause != null && cause.contains(APP_NAME_CONSTRAINT)) {
+            ErrorCode code = ErrorCode.DUPLICATE_APP_NAME;
+            log.info("동시 등록 요청 중 앱 이름 중복 차단");
             return ResponseEntity.status(code.getStatus())
                     .body(ErrorResponse.of(code, code.getMessage()));
         }

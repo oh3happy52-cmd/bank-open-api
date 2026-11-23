@@ -25,13 +25,17 @@ public enum ErrorCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다"),
 
     // 404: 찾는 대상이 없음
+    // APP_NOT_FOUND는 "없는 앱"과 "남의 앱" 둘 다에 쓴다 (AppService 주석 참고)
+    // → 두 경우의 응답이 똑같아야 하므로 메시지에 appId 같은 상세 정보를 덧붙이지 않는다
     NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 주소를 찾을 수 없습니다"),
+    APP_NOT_FOUND(HttpStatus.NOT_FOUND, "앱을 찾을 수 없습니다"),
 
     // 405: 주소는 있지만 그 HTTP 메서드(GET/POST 등)는 지원하지 않음
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다"),
 
     // 409: 이미 있는 데이터와 충돌
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 가입된 이메일입니다"),
+    DUPLICATE_APP_NAME(HttpStatus.CONFLICT, "이미 같은 이름의 앱이 있습니다"),
 
     // 500: 예상하지 못한 서버 오류
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "일시적인 오류가 발생했습니다");

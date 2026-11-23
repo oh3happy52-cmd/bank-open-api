@@ -1,8 +1,8 @@
 package com.example.bank_open_api.common.exception;
 
-// [무엇] 공통 오류 응답 테스트 (없는 주소, 지원하지 않는 메서드)
+// [무엇] 공통 오류 응답 테스트 (없는 주소, 지원하지 않는 메서드, 주소 값 형식 오류)
 // [역할] 예전에는 "예상 못 한 오류" 처리기에 잡혀 500이 나던 경우들이
-//        올바른 상태 코드(404/405)와 {code, message} 모양으로 나가는지 확인
+//        올바른 상태 코드(404/405/400)와 {code, message} 모양으로 나가는지 확인
 //        토큰이 없으면 문지기가 먼저 막아 401이 되는 것도 확인 (주소 존재 여부를 로그인 전에는 알려 주지 않음)
 // [누가 쓰나] ./gradlew test 실행 시 JUnit이 실행 (Docker가 켜져 있어야 함: Testcontainers MySQL)
 
@@ -60,6 +60,13 @@ class ErrorHandlingTest {
         mockMvc.perform(delete("/api/v1/developers/me").header("Authorization", "Bearer " + token))
                 .andExpect(status().isMethodNotAllowed())
                 .andExpect(jsonPath("$.code").value("METHOD_NOT_ALLOWED"));
+    }
+
+    @Test
+    void 주소의_appId가_숫자가_아니면_500이_아니라_400() throws Exception {
+        mockMvc.perform(get("/api/v1/apps/abc").header("Authorization", "Bearer " + token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_REQUEST"));
     }
 
     @Test
