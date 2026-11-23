@@ -1,0 +1,53 @@
+# ============================================================
+# docker-compose.yml
+# - 무엇: 로컬 개발용 MySQL 컨테이너 실행 설정 파일
+# - 역할: `docker compose up -d` 한 번으로 bank-open-api 전용 MySQL 8.4를 띄운다.
+# - 누가: 이 프로젝트를 로컬에서 개발·실행하는 개발자
+#
+# 비밀값(비밀번호 등)은 이 파일에 직접 쓰지 않는다.
+# Docker Compose는 이 파일과 같은 폴더의 .env 파일을 자동으로 읽어서
+# ${변수이름} 자리를 .env 값으로 바꿔 넣는다. (.env.example 참고)
+# ============================================================
+
+services:
+  mysql:
+    image: mysql:8.4                      # MySQL 8.4 (LTS 버전)
+    container_name: bank-open-api-mysql   # 컨테이너 이름 고정 (docker ps 에서 이 이름으로 보임)
+    restart: unless-stopped               # 직접 멈추지 않는 한, Docker가 재시작되면 같이 켜짐
+
+    ports:
+      # "호스트IP:호스트포트:컨테이너포트"
+      # 3307은 bank_core의 bank-mysql 컨테이너가 이미 쓰고 있으므로 내 PC 쪽은 3308로 연다.
+      # 127.0.0.1(내 컴퓨터 자신)에만 열어서, 같은 와이파이의 다른 컴퓨터 등
+      # 외부에서는 이 DB에 접속할 수 없게 한다. (IP를 생략하면 모든 네트워크에 열림)
+      # 서버(Spring)는 localhost:3308 로 접속한다.
+      - "127.0.0.1:3308:3306"
+
+    environment:
+      # MySQL 공식 이미지가 "처음 시작할 때(볼륨이 비어 있을 때)"만 읽는 환경 변수들.
+      # 이미 데이터가 만들어진 뒤에 .env를 바꿔도 반영되지 않으니 주의!
+      # (바꾸려면 볼륨을 지우고 다시 만들어야 한다: docker compose down -v)
+      MYSQL_DATABASE: bank_open_api                  # 처음 시작할 때 자동으로 만들 DB 이름
+      # ${VAR:?메시지} 문법: .env에 값이 없으면 컨테이너를 띄우지 않고 메시지를 보여 준다.
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?.env에 DB_ROOT_PASSWORD를 설정하세요}
+      MYSQL_USER: ${DB_USERNAME:?.env에 DB_USERNAME을 설정하세요}       # 앱이 쓸 일반 계정
+      MYSQL_PASSWORD: ${DB_PASSWORD:?.env에 DB_PASSWORD를 설정하세요}   # 그 계정의 비밀번호
+      TZ: Asia/Seoul                                 # 컨테이너 시간대를 한국 시간으로
+
+    volumes:
+      # named volume: 컨테이너를 지워도 DB 데이터는 이 볼륨에 남는다.
+      # MySQL은 /var/lib/mysql 에 데이터를 저장한다.
+      - bank-open-api-mysql-data:/var/lib/mysql
+
+    healthcheck:
+      # MySQL이 접속을 받을 준비가 됐는지 주기적으로 검사한다.
+      # `docker ps` 의 STATUS에 (healthy) 가 뜨면 준비 완료.
+      # $$ 는 Compose가 값을 미리 바꾸지 않고 컨테이너 안의 환경 변수를 쓰게 하는 표시.
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+# named volume 선언 (Docker가 알아서 저장 위치를 관리한다)
+volumes:
+  bank-open-api-mysql-data:

@@ -14,7 +14,7 @@ API 키 인증, 호출량 제한(Rate Limit), 사용량 집계, 웹훅 알림을
 ## 환경
 - 패키지: com.example.bank_open_api
 - 서버 포트 8081 (bank_core가 8080 사용)
-- MySQL은 Docker Compose로 실행, 호스트 포트 3307
+- MySQL은 Docker Compose로 실행, 호스트 포트 3308
 
 ## 작업 규칙
 1. 설명과 답변은 항상 한국어로 한다.
