@@ -188,6 +188,25 @@ class ApiKeyAuthenticationTest {
         assertThat(logs).doesNotContain(ApiKeyHasher.sha256Hex(fakeKey));
     }
 
+    @Test
+    void 인증_실패_로그의_uri에는_계좌번호_끝_4자리만_남는다(CapturedOutput output) throws Exception {
+        String accountNumber = "123-4567890";
+
+        // 키 없음(missing)과 폐기된 키(revoked: appId·keyPrefix까지 찍히는 쪽) 두 경우 모두 확인
+        mockMvc.perform(get("/open/v1/accounts/{accountNumber}", accountNumber))
+                .andExpect(status().isUnauthorized());
+        mockMvc.perform(delete("/api/v1/apps/" + appId + "/keys/" + keyId)
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+        mockMvc.perform(get("/open/v1/accounts/{accountNumber}", accountNumber).header(API_KEY_HEADER, rawKey))
+                .andExpect(status().isUnauthorized());
+
+        String logs = output.getAll();
+        assertThat(logs).contains("reason=missing, method=GET, uri=/open/v1/accounts/****7890");
+        assertThat(logs).contains("reason=revoked, method=GET, uri=/open/v1/accounts/****7890");
+        assertThat(logs).doesNotContain(accountNumber);
+    }
+
     // ───────────── 도우미 ─────────────
 
     // 401 INVALID_API_KEY 인지 확인

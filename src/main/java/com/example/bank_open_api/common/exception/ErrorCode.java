@@ -34,6 +34,9 @@ public enum ErrorCode {
     APP_NOT_FOUND(HttpStatus.NOT_FOUND, "앱을 찾을 수 없습니다"),
     // 내 앱이지만 그 앱에 없는 키 번호 (남의 앱이면 키 확인 전에 APP_NOT_FOUND가 먼저 나감)
     API_KEY_NOT_FOUND(HttpStatus.NOT_FOUND, "API 키를 찾을 수 없습니다"),
+    // /open/v1/accounts: bank_core가 403(남의 계좌·없는 계좌)이든 404든 둘 다 이것으로 응답
+    // → 응답만 보고 "그 계좌번호가 존재하는지" 알 수 없게 한다 (메시지에 계좌번호도 넣지 않음)
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌를 찾을 수 없습니다"),
 
     // 405: 주소는 있지만 그 HTTP 메서드(GET/POST 등)는 지원하지 않음
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다"),
@@ -45,7 +48,13 @@ public enum ErrorCode {
     API_KEY_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "앱당 활성 API 키는 최대 2개입니다"),
 
     // 500: 예상하지 못한 서버 오류
-    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "일시적인 오류가 발생했습니다");
+    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "일시적인 오류가 발생했습니다"),
+
+    // 502: 우리 뒤에 있는 bank_core가 꺼져 있음·연결 실패·5xx·연동 계정 로그인 실패 등
+    //      (우리 서버는 멀쩡하지만 "뒤쪽 서버"가 제대로 답하지 못했다는 뜻 = Bad Gateway)
+    BANK_CORE_UNAVAILABLE(HttpStatus.BAD_GATEWAY, "은행 시스템에 일시적으로 연결할 수 없습니다"),
+    // 504: bank_core가 정해 둔 시간(연결 3초 / 응답 5초) 안에 답하지 않음 (= Gateway Timeout)
+    BANK_CORE_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "은행 시스템의 응답이 늦어 처리하지 못했습니다");
 
     private final HttpStatus status;   // 응답에 쓸 HTTP 상태 코드
     private final String message;      // 사람이 읽는 기본 메시지

@@ -17,6 +17,7 @@ package com.example.bank_open_api.common.security;
 // - 키 원문과 해시는 절대 남기지 않는다 (로그 파일이 새어 나가도 키를 쓸 수 없게)
 // - 실패 원인은 reason=missing / not_found / revoked 로만 구분해서 남긴다 (응답은 셋 다 같음)
 // - DB에서 찾은 경우(revoked, 성공)에만 keyPrefix·keyId·appId를 남긴다
+// - uri 안의 계좌번호는 끝 4자리만 남긴다 (LogMasking.maskPath)
 //   (not_found일 때 헤더 값 앞부분을 남기면 그게 남이 잘못 붙여 넣은 진짜 비밀값일 수도 있어서 남기지 않음)
 //
 // ── 폐기 직후 바로 막히는 이유 ──
@@ -27,6 +28,7 @@ import com.example.bank_open_api.apikey.domain.ApiKey;
 import com.example.bank_open_api.apikey.domain.ApiKeyRepository;
 import com.example.bank_open_api.apikey.domain.ApiKeyStatus;
 import com.example.bank_open_api.common.exception.ErrorCode;
+import com.example.bank_open_api.common.logging.LogMasking;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -110,12 +112,14 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
     // apiKey는 DB에서 찾은 경우(revoked)에만 넘어온다 → 그때만 keyPrefix 등을 남김
     private void reject(HttpServletRequest request, HttpServletResponse response, String reason, ApiKey apiKey)
             throws IOException {
+        // uri의 계좌번호 자리는 끝 4자리만 남긴다 (예: /open/v1/accounts/****7890)
+        String maskedUri = LogMasking.maskPath(request.getRequestURI());
         if (apiKey == null) {
             log.info("API 키 인증 실패: reason={}, method={}, uri={}",
-                    reason, request.getMethod(), request.getRequestURI());
+                    reason, request.getMethod(), maskedUri);
         } else {
             log.info("API 키 인증 실패: reason={}, method={}, uri={}, appId={}, keyId={}, keyPrefix={}",
-                    reason, request.getMethod(), request.getRequestURI(),
+                    reason, request.getMethod(), maskedUri,
                     apiKey.getAppId(), apiKey.getId(), apiKey.getKeyPrefix());
         }
         // 혹시 앞에서 무언가 들어 있었더라도 인증 정보가 남지 않게 비운다
