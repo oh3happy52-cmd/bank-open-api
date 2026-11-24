@@ -2,7 +2,7 @@ package com.example.bank_open_api.apikey.application;
 
 // [무엇] API 키 해시 도구 (SHA-256 → 16진수 64글자)
 // [역할] 키 원문을 DB에 저장할 해시로 바꾼다. 같은 원문이면 항상 같은 해시가 나온다
-// [누가 쓰나] ApiKeyGenerator(발급할 때), 나중에 API 키 인증 필터(요청 헤더의 키로 DB를 찾을 때)
+// [누가 쓰나] ApiKeyGenerator(발급할 때), ApiKeyAuthenticationFilter(요청 헤더의 키로 DB를 찾을 때)
 //
 // ── 비밀번호는 BCrypt인데, API 키는 왜 SHA-256인가? ──
 // 1) 추측이 불가능하다

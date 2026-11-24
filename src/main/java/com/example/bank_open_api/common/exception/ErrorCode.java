@@ -20,6 +20,9 @@ public enum ErrorCode {
     // 로그인 실패는 "이메일 없음"과 "비밀번호 틀림"을 구분하지 않고 이 하나로 응답
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다"),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다"),
+    // /open/v1/** 에서 API 키가 "없음 / 없는 키 / 폐기된 키"인 경우를 구분하지 않고 이 하나로 응답
+    // → 응답만 보고는 "예전에 진짜였던 키인지" 알 수 없게 한다 (원인은 서버 로그에만 남김)
+    INVALID_API_KEY(HttpStatus.UNAUTHORIZED, "API 키가 없거나 올바르지 않습니다"),
 
     // 403: 누구인지는 알지만 권한이 없음 (인가 실패)
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다"),
