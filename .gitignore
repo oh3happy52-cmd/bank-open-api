@@ -41,3 +41,6 @@ out/
 .env.*
 # 예외: 값 없이 예시만 적은 견본 파일은 커밋한다.
 !.env.example
+
+# Claude Code 개인 설정 (내 컴퓨터 전용 권한 규칙, 커밋하지 않음)
+.claude/settings.local.json
