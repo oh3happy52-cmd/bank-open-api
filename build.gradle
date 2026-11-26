@@ -28,6 +28,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	// JWT 만들기·검사 기능 (bank_core와 같은 방식: Spring Security의 OAuth2 Resource Server + Nimbus)
 	implementation 'org.springframework.boot:spring-boot-starter-security-oauth2-resource-server'
+	// Redis 접속(Lettuce 클라이언트 + StringRedisTemplate): 오픈 API 호출 제한(Rate Limit)의 토큰 양동이 저장소
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
 	implementation 'org.flywaydb:flyway-mysql'

@@ -1,7 +1,8 @@
 # ============================================================
 # docker-compose.yml
-# - 무엇: 로컬 개발용 MySQL 컨테이너 실행 설정 파일
-# - 역할: `docker compose up -d` 한 번으로 bank-open-api 전용 MySQL 8.4를 띄운다.
+# - 무엇: 로컬 개발용 MySQL·Redis 컨테이너 실행 설정 파일
+# - 역할: `docker compose up -d` 한 번으로 bank-open-api 전용 MySQL 8.4와 Redis 7을 띄운다.
+#         (Redis는 2주차부터: 오픈 API 호출 제한(Rate Limit)의 토큰 양동이 저장소)
 # - 누가: 이 프로젝트를 로컬에서 개발·실행하는 개발자
 #
 # 비밀값(비밀번호 등)은 이 파일에 직접 쓰지 않는다.
@@ -44,6 +45,27 @@ services:
       # `docker ps` 의 STATUS에 (healthy) 가 뜨면 준비 완료.
       # $$ 는 Compose가 값을 미리 바꾸지 않고 컨테이너 안의 환경 변수를 쓰게 하는 표시.
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine                 # Redis 7 (가벼운 alpine 이미지)
+    container_name: bank-open-api-redis   # docker ps 에서 이 이름으로 보임
+    restart: unless-stopped
+
+    ports:
+      # 6379는 이 PC에 직접 설치된 redis-server(brew 등)가 이미 쓰고 있어서 6380으로 연다.
+      # MySQL과 마찬가지로 127.0.0.1(내 컴퓨터)에만 열어 외부 접속을 막는다.
+      # 서버(Spring)는 localhost:6380 으로 접속한다. (application.properties의 spring.data.redis.port)
+      - "127.0.0.1:6380:6379"
+
+    # 볼륨 없음: Redis에는 호출 제한용 "토큰 양동이"만 들어 있다.
+    # 컨테이너를 지워서 사라져도 모든 앱이 양동이가 가득 찬 상태로 다시 시작할 뿐이라 괜찮다.
+
+    healthcheck:
+      # redis-cli ping 에 PONG이 오면 준비 완료 → docker ps 의 STATUS에 (healthy)
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 10

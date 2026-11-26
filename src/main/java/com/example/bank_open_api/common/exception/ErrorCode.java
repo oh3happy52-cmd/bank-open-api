@@ -47,6 +47,9 @@ public enum ErrorCode {
     // 앱당 ACTIVE 키는 키 교체용으로 최대 2개 (새 키 발급 → 서비스에 적용 → 옛 키 폐기)
     API_KEY_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "앱당 활성 API 키는 최대 2개입니다"),
 
+    // 429: 앱의 호출 한도(토큰 버킷)를 다 씀. Retry-After 헤더(초)만큼 기다린 뒤 다시 보내면 된다
+    RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "호출 한도를 초과했습니다. 잠시 후 다시 시도해 주세요"),
+
     // 500: 예상하지 못한 서버 오류
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "일시적인 오류가 발생했습니다"),
 

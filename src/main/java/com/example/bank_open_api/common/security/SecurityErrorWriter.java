@@ -3,7 +3,8 @@ package com.example.bank_open_api.common.security;
 // [무엇] 문지기(Spring Security) 단계에서 오류 응답 {code, message}를 직접 쓰는 도구
 // [역할] Controller에 도착하기 전에 막는 경우에는 GlobalExceptionHandler가 처리하지 못하므로,
 //        여기서 같은 모양의 JSON을 직접 써서 응답한다
-// [누가 쓰나] ApiKeyAuthenticationFilter(401 INVALID_API_KEY), OpenApiSecurityConfig(401·403)
+// [누가 쓰나] ApiKeyAuthenticationFilter(401 INVALID_API_KEY), RateLimitFilter(429 RATE_LIMIT_EXCEEDED),
+//            OpenApiSecurityConfig(401·403)
 //            (기존 JWT 규칙표는 SecurityConfig.writeError()를 그대로 쓴다 — 기존 코드는 건드리지 않음)
 
 import com.example.bank_open_api.common.exception.ErrorCode;
