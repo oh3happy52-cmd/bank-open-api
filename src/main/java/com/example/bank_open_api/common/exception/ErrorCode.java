@@ -22,6 +22,8 @@ public enum ErrorCode {
     SAME_ACCOUNT(HttpStatus.BAD_REQUEST, "같은 계좌로는 이체할 수 없습니다"),
     MISSING_IDEMPOTENCY_KEY(HttpStatus.BAD_REQUEST, "Idempotency-Key 헤더가 필요합니다"),
     INVALID_IDEMPOTENCY_KEY(HttpStatus.BAD_REQUEST, "Idempotency-Key는 64자 이하의 영문·숫자·-·_ 만 쓸 수 있습니다"),
+    // 웹훅 주소 규칙 위반 (http/https만, 2048자 이하, user:pass@ 금지, allow-http=false면 https만)
+    INVALID_WEBHOOK_URL(HttpStatus.BAD_REQUEST, "웹훅 주소가 올바르지 않습니다"),
 
     // 401: 누구인지 확인되지 않음 (인증 실패)
     // 로그인 실패는 "이메일 없음"과 "비밀번호 틀림"을 구분하지 않고 이 하나로 응답
@@ -44,6 +46,8 @@ public enum ErrorCode {
     // /open/v1/accounts: bank_core가 403(남의 계좌·없는 계좌)이든 404든 둘 다 이것으로 응답
     // → 응답만 보고 "그 계좌번호가 존재하는지" 알 수 없게 한다 (메시지에 계좌번호도 넣지 않음)
     ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "계좌를 찾을 수 없습니다"),
+    // 내 앱이지만 웹훅을 아직 등록하지 않음
+    WEBHOOK_NOT_FOUND(HttpStatus.NOT_FOUND, "웹훅 설정을 찾을 수 없습니다"),
 
     // 405: 주소는 있지만 그 HTTP 메서드(GET/POST 등)는 지원하지 않음
     METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "지원하지 않는 요청 방식입니다"),
