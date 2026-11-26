@@ -15,6 +15,8 @@ public enum ErrorCode {
 
     // 400: 요청 자체가 잘못됨 (이메일 형식 오류, 비밀번호 길이 부족 등)
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다"),
+    // 사용량 통계 조회 기간 오류: 시작일이 종료일보다 늦거나, 기간이 31일을 넘음
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "조회 기간이 올바르지 않습니다 (시작일 ≤ 종료일, 최대 31일)"),
 
     // 401: 누구인지 확인되지 않음 (인증 실패)
     // 로그인 실패는 "이메일 없음"과 "비밀번호 틀림"을 구분하지 않고 이 하나로 응답
