@@ -1,0 +1,18 @@
+<!--
+  [무엇] 브라우저가 가장 먼저 받는 HTML 한 장
+  [역할] 비어 있는 <div id="root"> 하나와 src/main.jsx 스크립트만 있다.
+         화면의 모든 내용은 React가 이 root 안에 그려 넣는다 (한 페이지짜리 앱 = SPA)
+  [누가 쓰나] Vite 개발 서버·빌드가 읽는다
+-->
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bank Open API 개발자 포털</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

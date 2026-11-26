@@ -1,0 +1,161 @@
+/*
+  [무엇] 앱 전체 기본 스타일
+  [역할] 글꼴, 가운데 정렬된 카드, 입력칸, 버튼, 오류·안내 문구 색을 정한다 (UI 라이브러리 없이 기본 CSS만)
+  [누가 쓰나] main.jsx가 import 한다
+*/
+
+:root {
+  --text: #1f2328;
+  --muted: #59636e;
+  --border: #d1d9e0;
+  --bg: #f6f8fa;
+  --card: #ffffff;
+  --primary: #1f6feb;
+  --primary-hover: #1a5fd0;
+  --error-bg: #ffebe9;
+  --error-text: #b42318;
+  --notice-bg: #e6f4ea;
+  --notice-text: #1a7f37;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  line-height: 1.5;
+}
+
+.container {
+  max-width: 420px;
+  margin: 48px auto;
+  padding: 0 16px;
+}
+
+.brand {
+  font-size: 1.1rem;
+  color: var(--muted);
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.card h2 {
+  margin: 0 0 16px;
+  font-size: 1.4rem;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+label small {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+input {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  margin-top: 16px;
+  width: 100%;
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button.secondary:hover {
+  background: var(--bg);
+}
+
+.error,
+.notice {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.error {
+  background: var(--error-bg);
+  color: var(--error-text);
+}
+
+.notice {
+  background: var(--notice-bg);
+  color: var(--notice-text);
+  margin-bottom: 12px;
+}
+
+.hint {
+  margin: 16px 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.info {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.info dt {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.info dd {
+  margin: 0;
+  word-break: break-all;
+}
