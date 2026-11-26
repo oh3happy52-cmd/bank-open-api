@@ -17,6 +17,11 @@ public enum ErrorCode {
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다"),
     // 사용량 통계 조회 기간 오류: 시작일이 종료일보다 늦거나, 기간이 31일을 넘음
     INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "조회 기간이 올바르지 않습니다 (시작일 ≤ 종료일, 최대 31일)"),
+    // 이체 (오픈 API /open/v1/transfers). bank_core와 같은 code 이름을 쓰지만 메시지는 우리 문구
+    INVALID_AMOUNT(HttpStatus.BAD_REQUEST, "금액이 올바르지 않습니다"),
+    SAME_ACCOUNT(HttpStatus.BAD_REQUEST, "같은 계좌로는 이체할 수 없습니다"),
+    MISSING_IDEMPOTENCY_KEY(HttpStatus.BAD_REQUEST, "Idempotency-Key 헤더가 필요합니다"),
+    INVALID_IDEMPOTENCY_KEY(HttpStatus.BAD_REQUEST, "Idempotency-Key는 64자 이하의 영문·숫자·-·_ 만 쓸 수 있습니다"),
 
     // 401: 누구인지 확인되지 않음 (인증 실패)
     // 로그인 실패는 "이메일 없음"과 "비밀번호 틀림"을 구분하지 않고 이 하나로 응답
@@ -48,6 +53,17 @@ public enum ErrorCode {
     DUPLICATE_APP_NAME(HttpStatus.CONFLICT, "이미 같은 이름의 앱이 있습니다"),
     // 앱당 ACTIVE 키는 키 교체용으로 최대 2개 (새 키 발급 → 서비스에 적용 → 옛 키 폐기)
     API_KEY_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "앱당 활성 API 키는 최대 2개입니다"),
+    // 같은 Idempotency-Key의 이체가 아직 처리 중 (bank_core 409를 그대로 전달)
+    DUPLICATE_REQUEST(HttpStatus.CONFLICT, "같은 Idempotency-Key의 요청이 처리 중입니다. 잠시 후 같은 키로 다시 요청하세요"),
+
+    // 422: 형식은 맞지만 업무 규칙상 처리할 수 없음 (이체: bank_core 422를 같은 code로 전달)
+    // (Spring 7에서 422의 이름이 UNPROCESSABLE_ENTITY → UNPROCESSABLE_CONTENT로 바뀜. 숫자는 같은 422)
+    INSUFFICIENT_BALANCE(HttpStatus.UNPROCESSABLE_CONTENT, "잔액이 부족합니다"),
+    ACCOUNT_NOT_ACTIVE(HttpStatus.UNPROCESSABLE_CONTENT, "사용할 수 없는 계좌입니다"),
+    IDEMPOTENCY_KEY_REUSED(HttpStatus.UNPROCESSABLE_CONTENT, "같은 Idempotency-Key로 다른 내용의 이체를 보낼 수 없습니다"),
+    SYSTEM_ACCOUNT_NOT_ALLOWED(HttpStatus.UNPROCESSABLE_CONTENT, "이 계좌로는 이체할 수 없습니다"),
+    // bank_core가 우리가 모르는 422 code를 줬을 때 (BankCoreClient가 WARN 로그를 남김)
+    TRANSFER_NOT_PROCESSABLE(HttpStatus.UNPROCESSABLE_CONTENT, "이체를 처리할 수 없습니다"),
 
     // 429: 앱의 호출 한도(토큰 버킷)를 다 씀. Retry-After 헤더(초)만큼 기다린 뒤 다시 보내면 된다
     RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "호출 한도를 초과했습니다. 잠시 후 다시 시도해 주세요"),
