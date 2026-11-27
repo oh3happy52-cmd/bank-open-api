@@ -1,10 +1,11 @@
 // [무엇] 로그인 화면 (/login)
 // [역할] 이메일·비밀번호로 로그인 API를 부른다
-//        - 성공 → 받은 accessToken을 sessionStorage에 저장하고 /me 로 이동
+//        - 성공 → 받은 accessToken을 sessionStorage에 저장하고 /apps(내 앱) 로 이동
 //        - 401 → "이메일 또는 비밀번호가 올바르지 않습니다" (어느 쪽이 틀렸는지 알려 주지 않음 — 서버와 같은 원칙)
 //        - 400 → 서버가 준 메시지 (예: 빈 칸)
 //        - 서버 꺼짐 → "서버에 연결할 수 없습니다"
 //        - 회원가입 화면에서 넘어왔으면 "가입 완료" 안내를 보여 주고 이메일을 미리 채워 둔다
+//        - 로그인이 풀려서(401) 넘어왔으면 "다시 로그인해 주세요" 안내를 보여 준다 (RequireAuth가 넘겨줌)
 // [누가 쓰나] App.jsx의 라우팅 표
 
 import { useState } from 'react'
@@ -32,7 +33,7 @@ export default function LoginPage() {
     try {
       const result = await login({ email, password })
       saveToken(result.accessToken) // 토큰은 저장만 하고 화면·콘솔에 출력하지 않는다
-      navigate('/me', { replace: true }) // 뒤로 가기로 로그인 화면에 돌아오지 않게
+      navigate('/apps', { replace: true }) // 뒤로 가기로 로그인 화면에 돌아오지 않게
     } catch (e) {
       if (e.status === 401) {
         setError('이메일 또는 비밀번호가 올바르지 않습니다')

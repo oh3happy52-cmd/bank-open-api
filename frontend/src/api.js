@@ -1,7 +1,7 @@
 // [무엇] 백엔드 API 호출 모음 (이 앱에서 fetch를 부르는 유일한 파일)
 // [역할] 화면 코드는 signup(), login(), fetchMe()만 부르고, 주소·헤더·JSON 변환·오류 처리는 여기서 한다
 //        모든 주소는 /api/... (같은 주소) → Vite 프록시가 127.0.0.1:8081로 전달한다 (vite.config.js)
-// [누가 쓰나] SignupPage, LoginPage, MePage
+// [누가 쓰나] SignupPage, LoginPage, MePage, AppsPage, AppDetailPage
 //
 // 요청·응답 모양은 백엔드 코드에 맞췄다
 //   회원가입  POST /api/v1/developers/signup  요청 {email, password, name}  → 201 {id, email, name, createdAt}
@@ -9,6 +9,16 @@
 //   로그인    POST /api/v1/auth/login         요청 {email, password}        → 200 {accessToken, tokenType, expiresIn}
 //                                              (AuthController.LoginRequest / LoginResponse)
 //   내 정보   GET  /api/v1/developers/me      헤더 Authorization: Bearer 토큰 → 200 {id, email, name, createdAt}
+//   (아래는 모두 Authorization: Bearer 토큰 필요. 남의 앱·없는 앱은 404 APP_NOT_FOUND)
+//   앱 목록   GET  /api/v1/apps                → 200 [{id, name, description, createdAt}] (최근 등록순)
+//   앱 등록   POST /api/v1/apps                요청 {name, description} → 201 {id, name, description, createdAt}
+//                                              (CreateAppRequest: name 필수·50자 이하, description 선택·200자 이하)
+//                                              409 DUPLICATE_APP_NAME
+//   앱 상세   GET  /api/v1/apps/{appId}        → 200 {id, name, description, createdAt}
+//   키 목록   GET  /api/v1/apps/{appId}/keys   → 200 [{id, keyPrefix, status, createdAt, revokedAt}] (ApiKeyResponse)
+//   키 발급   POST /api/v1/apps/{appId}/keys   → 201 {id, apiKey, keyPrefix, createdAt} (IssuedApiKeyResponse)
+//                                              apiKey(원문)는 이 응답에서만 온다. 409 API_KEY_LIMIT_EXCEEDED
+//   키 폐기   DELETE /api/v1/apps/{appId}/keys/{keyId} → 204 (본문 없음)
 //   오류는 항상 {code, message} (ErrorResponse)
 //
 // 실패하면 ApiError를 던진다. 화면은 status(상태 코드)와 message로 무엇을 보여 줄지 정한다.
@@ -88,4 +98,40 @@ export function login({ email, password }) {
 // 내 정보 → 성공 시 {id, email, name, createdAt}
 export function fetchMe(token) {
   return request('/api/v1/developers/me', { token })
+}
+
+// ───────────── 앱 ─────────────
+
+export function listApps(token) {
+  return request('/api/v1/apps', { token })
+}
+
+// description은 비워 두면 보내지 않는다 (서버가 null로 저장)
+export function createApp(token, { name, description }) {
+  const body = { name }
+  if (description && description.trim()) body.description = description
+  return request('/api/v1/apps', { method: 'POST', body, token })
+}
+
+// appId는 주소에서 온 값이라 encodeURIComponent로 감싼다 (이상한 글자가 다른 주소로 바뀌지 않게)
+export function getApp(token, appId) {
+  return request(`/api/v1/apps/${encodeURIComponent(appId)}`, { token })
+}
+
+// ───────────── API 키 ─────────────
+
+export function listKeys(token, appId) {
+  return request(`/api/v1/apps/${encodeURIComponent(appId)}/keys`, { token })
+}
+
+// 응답의 apiKey(원문)는 부른 쪽이 화면에 한 번 보여 주고 바로 버려야 한다 (저장·출력 금지)
+export function issueKey(token, appId) {
+  return request(`/api/v1/apps/${encodeURIComponent(appId)}/keys`, { method: 'POST', token })
+}
+
+export function revokeKey(token, appId, keyId) {
+  return request(
+    `/api/v1/apps/${encodeURIComponent(appId)}/keys/${encodeURIComponent(keyId)}`,
+    { method: 'DELETE', token },
+  )
 }

@@ -31,7 +31,7 @@ body {
 }
 
 .container {
-  max-width: 420px;
+  max-width: 720px;
   margin: 48px auto;
   padding: 0 16px;
 }
@@ -158,4 +158,232 @@ button.secondary:hover {
 .info dd {
   margin: 0;
   word-break: break-all;
+}
+
+/* ───────────── 3주차: 내 앱 화면 ───────────── */
+
+/* 로그인·회원가입처럼 카드 하나만 있는 화면은 좁게 (form이 들어 있는 첫 카드 기준) */
+.container > .card:only-of-type {
+  max-width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.card + .card {
+  margin-top: 16px;
+}
+
+/* 위쪽 메뉴 */
+.topnav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.topnav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.topnav a.active {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.topnav .link-button {
+  margin-left: auto;
+}
+
+button.link-button {
+  background: none;
+  color: var(--muted);
+  padding: 0;
+  font-weight: 400;
+  font-size: 0.95rem;
+}
+
+button.link-button:hover:not(:disabled) {
+  background: none;
+  color: var(--text);
+}
+
+.breadcrumb {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-head h2 {
+  margin: 0;
+}
+
+/* 앱 목록 */
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.item-list li:last-child {
+  border-bottom: none;
+}
+
+.item-title {
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.item-title:hover {
+  text-decoration: underline;
+}
+
+.item-meta {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.item-desc {
+  width: 100%;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* 키 표 (좁은 화면에서는 표만 가로로 밀어서 봄) */
+.table-wrap {
+  overflow-x: auto;
+  margin-top: 12px;
+}
+
+.key-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.key-table th,
+.key-table td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.key-table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9em;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.badge-active {
+  background: var(--notice-bg);
+  color: var(--notice-text);
+}
+
+.badge-revoked {
+  background: var(--bg);
+  color: var(--muted);
+}
+
+button.small {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+button.danger {
+  background: #cf222e;
+}
+
+button.danger:hover:not(:disabled) {
+  background: #a40e26;
+}
+
+button.secondary-inline {
+  background: #fff;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+button.secondary-inline:hover:not(:disabled) {
+  background: var(--bg);
+}
+
+/* 모달 */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 20, 25, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 10;
+}
+
+.modal {
+  background: var(--card);
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.modal h3 {
+  margin: 0 0 12px;
+}
+
+.modal p {
+  margin: 0 0 12px;
+}
+
+.warning {
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fff8c5;
+  color: #7d4e00;
+  font-size: 0.9rem;
+}
+
+.secret-box {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
 }
